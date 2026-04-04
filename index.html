@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -14,19 +15,20 @@
     }
 
     :root {
-      --bg:        #0f0f13;
-      --surface:   #1a1a24;
-      --surface2:  #22222f;
-      --border:    #2e2e42;
-      --accent:    #7c6ff7;
-      --accent2:   #a78bfa;
-      --text:      #e8e6f0;
-      --muted:     #888aa8;
-      --success:   #34d399;
-      --error:     #f87171;
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --surface2: #22222f;
+      --border: #2e2e42;
+      --accent: #7c6ff7;
+      --accent2: #a78bfa;
+      --text: #e8e6f0;
+      --muted: #888aa8;
+      --success: #34d399;
+      --error: #f87171;
     }
 
-    html, body {
+    html,
+    body {
       height: 100%;
       background: var(--bg);
       color: var(--text);
@@ -125,7 +127,9 @@
       -webkit-appearance: none;
     }
 
-    input::placeholder { color: var(--muted); }
+    input::placeholder {
+      color: var(--muted);
+    }
 
     input:focus {
       border-color: var(--accent);
@@ -164,7 +168,9 @@
       cursor: not-allowed;
     }
 
-    .btn-icon { font-size: 20px; }
+    .btn-icon {
+      font-size: 20px;
+    }
 
     /* ── Status ── */
     .status-bar {
@@ -195,12 +201,23 @@
       transform: translateY(0);
     }
 
-    .status-item.success { border-color: #34d39944; color: var(--success); }
-    .status-item.error   { border-color: #f8717144; color: var(--error);   }
-    .status-item.loading { color: var(--muted); }
+    .status-item.success {
+      border-color: #34d39944;
+      color: var(--success);
+    }
+
+    .status-item.error {
+      border-color: #f8717144;
+      color: var(--error);
+    }
+
+    .status-item.loading {
+      color: var(--muted);
+    }
 
     .dot {
-      width: 8px; height: 8px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
       background: currentColor;
@@ -214,7 +231,9 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     /* ── Footer ── */
@@ -227,6 +246,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="header">
@@ -242,15 +262,8 @@
         <label for="phone">전화번호</label>
         <div class="input-wrap">
           <span class="input-icon">📱</span>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="010-0000-0000"
-            inputmode="tel"
-            maxlength="13"
-            required
-          />
+          <input type="tel" id="phone" name="phone" placeholder="010-0000-0000" inputmode="tel" maxlength="13"
+            required />
         </div>
       </div>
 
@@ -258,13 +271,7 @@
         <label for="company">소속회사</label>
         <div class="input-wrap">
           <span class="input-icon">🏢</span>
-          <input
-            type="text"
-            id="company"
-            name="company"
-            placeholder="회사명을 입력하세요"
-            required
-          />
+          <input type="text" id="company" name="company" placeholder="회사명을 입력하세요" required />
         </div>
       </div>
 
@@ -289,13 +296,13 @@
       postUrl: 'https://script.google.com/macros/s/AKfycbyVZr_HzIIxyoIJ9dJdIwvi5GfIk17gAFxW_jq7vGoy8FDIPtVXeIhQ68f8lYnzJJBW/exec',
 
       // MQTT 브로커 (WebSocket)
-      mqttBroker: 'ws://localhost:9001',   // 예: ws://192.168.1.100:9001
-      mqttTopic:  'camera/trigger',
+      mqttBroker: 'mqtt://mediaflow00.iptime.org:20000',
+      mqttTopic: '/Snap/Command',
       mqttClientId: 'web_' + Math.random().toString(16).slice(2, 8),
     };
     // ──────────────────────────────────────────
 
-    const form      = document.getElementById('picForm');
+    const form = document.getElementById('picForm');
     const submitBtn = document.getElementById('submitBtn');
     const statusBar = document.getElementById('statusBar');
     const phoneInput = document.getElementById('phone');
@@ -303,9 +310,9 @@
     // 전화번호 자동 하이픈
     phoneInput.addEventListener('input', () => {
       let v = phoneInput.value.replace(/\D/g, '');
-      if (v.length <= 3)        phoneInput.value = v;
-      else if (v.length <= 7)   phoneInput.value = v.slice(0,3) + '-' + v.slice(3);
-      else                      phoneInput.value = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
+      if (v.length <= 3) phoneInput.value = v;
+      else if (v.length <= 7) phoneInput.value = v.slice(0, 3) + '-' + v.slice(3);
+      else phoneInput.value = v.slice(0, 3) + '-' + v.slice(3, 7) + '-' + v.slice(7, 11);
     });
 
     function addStatus(msg, type = 'loading') {
@@ -359,12 +366,7 @@
           }, 6000);
 
           client.on('connect', () => {
-            const payload = JSON.stringify({
-              event: 'take_pic',
-              phone,
-              company,
-              ts: Date.now(),
-            });
+            const payload = JSON.stringify({ id: '1', cmd: 'on' });
             client.publish(CONFIG.mqttTopic, payload, { qos: 1 }, (err) => {
               clearTimeout(timeout);
               if (err) {
@@ -393,7 +395,7 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const phone   = phoneInput.value.trim();
+      const phone = phoneInput.value.trim();
       const company = document.getElementById('company').value.trim();
       if (!phone || !company) return;
 
@@ -413,4 +415,5 @@
     });
   </script>
 </body>
+
 </html>
